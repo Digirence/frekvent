@@ -392,7 +392,7 @@ def format_short(n):
 # ---------------------------------------------------------------------------
 # HTML RENDERER
 # ---------------------------------------------------------------------------
-def render_html(swadesh_data, total_words, book_count, tier_coverage):
+def render_html(swadesh_data, total_words, book_count, tier_coverage, site_url=""):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     template_path = os.path.join(script_dir, TEMPLATE_FILE)
 
@@ -429,6 +429,7 @@ def render_html(swadesh_data, total_words, book_count, tier_coverage):
         "{{TOTAL_WORDS_DISPLAY}}": f"{total_words:,}",
         "{{TIER1_PCT}}": tier1_pct,
         "{{TIER12_PCT}}": tier12_pct,
+        "{{SITE_URL}}": site_url.rstrip("/"),
     }
 
     for placeholder, value in replacements.items():
@@ -480,6 +481,12 @@ def main():
         "--no-freq-txt",
         action="store_true",
         help=f"Skip generating {OUTPUT_FREQ_TXT}",
+    )
+    parser.add_argument(
+        "--site-url",
+        type=str,
+        default="",
+        help="Base URL for canonical/OG tags (e.g. https://frekvent.se)",
     )
     args = parser.parse_args()
 
@@ -552,7 +559,7 @@ def main():
 
     # Generate HTML
     print(f"\n  Generating {OUTPUT_HTML}...")
-    html = render_html(swadesh_data, total_words, n_books, tier_coverage)
+    html = render_html(swadesh_data, total_words, n_books, tier_coverage, args.site_url)
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     output_path = os.path.join(script_dir, OUTPUT_HTML)

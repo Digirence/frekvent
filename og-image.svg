@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <!-- Swedish flag background -->
+  <rect width="1200" height="630" fill="#006AA7"/>
+  <rect x="375" y="0" width="120" height="630" fill="#FECC02"/>
+  <rect x="0" y="255" width="1200" height="120" fill="#FECC02"/>
+
+  <!-- Dark overlay for text readability -->
+  <rect width="1200" height="630" fill="rgba(0,0,0,0.45)"/>
+
+  <!-- Title -->
+  <text x="600" y="270" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="96" font-weight="800" fill="#FECC02" letter-spacing="-2">Frekvent</text>
+
+  <!-- Subtitle -->
+  <text x="600" y="340" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="32" fill="rgba(255,255,255,0.9)">Learn Swedish by Frequency</text>
+
+  <!-- Stats line -->
+  <text x="600" y="420" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="22" fill="rgba(255,255,255,0.6)">Core vocabulary ranked from 2000+ Swedish books</text>
+</svg>
