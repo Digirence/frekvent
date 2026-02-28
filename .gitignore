@@ -1,0 +1,8 @@
+books/
+swedish_books/
+swedish_word_frequencies.txt
+swadesh_frequency_report.txt
+.venv/
+__pycache__/
+*.pyc
+.DS_Store

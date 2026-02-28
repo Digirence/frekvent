@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frekvent — Learn Swedish by Frequency</title>
+<style>
+  :root {
+    --blue: #006AA7;
+    --yellow: #FECC02;
+    --dark: #1a1a2e;
+    --darker: #12121f;
+    --card: #222240;
+    --card-hover: #2a2a50;
+    --text: #e8e8f0;
+    --muted: #9999bb;
+    --tier1: #FECC02;
+    --tier2: #4fc3f7;
+    --tier3: #ab77d6;
+    --green: #66bb6a;
+    --red: #ef5350;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--darker);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* ---- HERO ---- */
+  .hero {
+    background: linear-gradient(135deg, var(--blue) 0%, #004a80 100%);
+    padding: 3rem 2rem 2.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '🇸🇪';
+    position: absolute;
+    font-size: 12rem;
+    opacity: 0.07;
+    top: -1rem;
+    right: -1rem;
+  }
+  .hero h1 {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: var(--yellow);
+    margin-bottom: 0.3rem;
+  }
+  .hero p {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.85);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* ---- STATS BAR ---- */
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    padding: 1.5rem 1rem;
+    background: var(--dark);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .stat {
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--yellow);
+  }
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ---- CONTAINER ---- */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  /* ---- TABS ---- */
+  .tabs {
+    display: flex;
+    gap: 0;
+    margin-top: 2rem;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
+  }
+  .tab {
+    padding: 0.8rem 1.5rem;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--muted);
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    color: var(--yellow);
+    border-bottom-color: var(--yellow);
+  }
+
+  .tab-content { display: none; padding: 1.5rem 0 3rem; }
+  .tab-content.active { display: block; }
+
+  /* ---- TIER SECTION ---- */
+  .tier-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin: 1.5rem 0 1rem;
+  }
+  .tier-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.75rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .tier-badge.t1 { background: var(--tier1); color: #000; }
+  .tier-badge.t2 { background: var(--tier2); color: #000; }
+  .tier-badge.t3 { background: var(--tier3); color: #000; }
+
+  .tier-header h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+  .tier-header .coverage {
+    margin-left: auto;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .tier-header .coverage strong {
+    color: var(--green);
+  }
+
+  /* ---- WORD GRID ---- */
+  .word-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.6rem;
+  }
+  .word-card {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    transition: all 0.15s;
+    cursor: default;
+    border: 1px solid transparent;
+  }
+  .word-card:hover {
+    background: var(--card-hover);
+    border-color: rgba(255,255,255,0.08);
+    transform: translateY(-1px);
+  }
+  .word-card.learned {
+    border-color: var(--green);
+    background: rgba(102, 187, 106, 0.08);
+  }
+  .word-rank {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--muted);
+    min-width: 22px;
+    text-align: right;
+  }
+  .word-sv {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .word-en {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-left: auto;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .word-freq {
+    font-size: 0.68rem;
+    color: var(--muted);
+    opacity: 0.7;
+  }
+  .word-check {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.15);
+    flex-shrink: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    font-size: 0.7rem;
+  }
+  .word-check:hover { border-color: var(--green); }
+  .word-card.learned .word-check {
+    background: var(--green);
+    border-color: var(--green);
+    color: #000;
+  }
+
+  /* ---- PROGRESS BAR ---- */
+  .progress-section {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .progress-section h3 {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+  }
+  .progress-bar-outer {
+    height: 12px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 99px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), #81c784);
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+  .progress-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 0.4rem;
+  }
+  .progress-text strong { color: var(--green); }
+
+  /* ---- SEARCH / DICTIONARY TAB ---- */
+  .search-box {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.2rem;
+  }
+  .search-box input {
+    flex: 1;
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: var(--card);
+    color: var(--text);
+    font-size: 1rem;
+    outline: none;
+  }
+  .search-box input:focus { border-color: var(--blue); }
+  .search-box input::placeholder { color: var(--muted); }
+
+  .dict-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .dict-table th {
+    text-align: left;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    cursor: pointer;
+    user-select: none;
+  }
+  .dict-table th:hover { color: var(--text); }
+  .dict-table th .sort-arrow { margin-left: 4px; font-size: 0.6rem; }
+  .dict-table td {
+    padding: 0.55rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    font-size: 0.9rem;
+  }
+  .dict-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .dict-table .col-rank { width: 60px; color: var(--muted); }
+  .dict-table .col-word { font-weight: 700; color: #fff; }
+  .dict-table .col-en { color: var(--muted); }
+  .dict-table .col-freq { text-align: right; font-variant-numeric: tabular-nums; }
+  .dict-table .col-bar { width: 120px; }
+  .freq-bar {
+    height: 6px;
+    background: var(--blue);
+    border-radius: 3px;
+    opacity: 0.7;
+  }
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  .pagination button {
+    padding: 0.4rem 0.8rem;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: var(--card);
+    color: var(--text);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+  .pagination button:hover { background: var(--card-hover); }
+  .pagination button:disabled { opacity: 0.3; cursor: default; }
+  .pagination .page-info { font-size: 0.82rem; color: var(--muted); }
+
+  /* ---- CHART (simple CSS bar chart) ---- */
+  .chart-section { margin: 2rem 0; }
+  .chart-section h3 {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    color: var(--text);
+  }
+  .bar-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .bar-label {
+    width: 80px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .bar-track {
+    flex: 1;
+    height: 22px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #000;
+    min-width: fit-content;
+    transition: width 0.5s ease;
+  }
+
+  /* ---- QUIZ ---- */
+  .quiz-area {
+    max-width: 500px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .quiz-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    margin-bottom: 1.5rem;
+  }
+  .quiz-prompt {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .quiz-word {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--yellow);
+    margin-bottom: 0.3rem;
+  }
+  .quiz-meta {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .quiz-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+  }
+  .quiz-opt {
+    padding: 0.9rem;
+    border-radius: 10px;
+    background: var(--card);
+    border: 2px solid rgba(255,255,255,0.08);
+    color: var(--text);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 500;
+  }
+  .quiz-opt:hover { border-color: var(--blue); background: var(--card-hover); }
+  .quiz-opt.correct { border-color: var(--green); background: rgba(102,187,106,0.15); color: var(--green); }
+  .quiz-opt.wrong { border-color: var(--red); background: rgba(239,83,80,0.15); color: var(--red); }
+  .quiz-opt.reveal { border-color: var(--green); opacity: 0.6; }
+  .quiz-score {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+  .quiz-next {
+    padding: 0.7rem 2rem;
+    border-radius: 8px;
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: none;
+  }
+  .quiz-next:hover { filter: brightness(1.15); }
+  .quiz-tier-select {
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  .quiz-tier-btn {
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: var(--card);
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+  .quiz-tier-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+  /* ---- FOOTER ---- */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+    border-top: 1px solid rgba(255,255,255,0.04);
+    margin-top: 2rem;
+  }
+
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 1.8rem; }
+    .stats-bar { gap: 1rem; }
+    .stat-num { font-size: 1.3rem; }
+    .word-grid { grid-template-columns: 1fr; }
+    .quiz-options { grid-template-columns: 1fr; }
+    .tab { padding: 0.6rem 0.8rem; font-size: 0.82rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Frekvent</h1>
+  <p>Core Swedish vocabulary ranked by real frequency across 2025 Swedish books. Learn the words that matter most.</p>
+</div>
+
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-num">133.3M</div>
+    <div class="stat-label">Words Analyzed</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">2025</div>
+    <div class="stat-label">Books</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">257</div>
+    <div class="stat-label">Core Words</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num" id="learned-stat">0</div>
+    <div class="stat-label">Learned</div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="tabs">
+    <div class="tab active" data-tab="learn">Learn</div>
+    <div class="tab" data-tab="dictionary">Dictionary</div>
+    <div class="tab" data-tab="quiz">Quiz</div>
+    <div class="tab" data-tab="stats">Insights</div>
+  </div>
+
+  <!-- ====== LEARN TAB ====== -->
+  <div class="tab-content active" id="tab-learn">
+    <div class="progress-section" id="progress-section">
+      <h3>Your Progress</h3>
+      <div class="progress-bar-outer">
+        <div class="progress-bar-inner" id="progress-bar" style="width: 0%"></div>
+      </div>
+      <div class="progress-text">
+        <span><strong id="progress-count">0</strong> / <span id="progress-total">0</span> words learned</span>
+        <span id="progress-pct">0%</span>
+      </div>
+    </div>
+
+    <div class="tier-header">
+      <span class="tier-badge t1">Tier 1</span>
+      <h2>Week 1 — Learn First</h2>
+      <span class="coverage">Covers <strong>19.2%</strong> of all text</span>
+    </div>
+    <div class="word-grid" id="grid-tier1"></div>
+
+    <div class="tier-header">
+      <span class="tier-badge t2">Tier 2</span>
+      <h2>Week 2 — Learn Next</h2>
+      <span class="coverage">Combined <strong>21.4%</strong> coverage</span>
+    </div>
+    <div class="word-grid" id="grid-tier2"></div>
+
+    <div class="tier-header">
+      <span class="tier-badge t3">Tier 3</span>
+      <h2>Beyond — Learn Later</h2>
+      <span class="coverage">Remaining vocabulary</span>
+    </div>
+    <div class="word-grid" id="grid-tier3"></div>
+  </div>
+
+  <!-- ====== DICTIONARY TAB ====== -->
+  <div class="tab-content" id="tab-dictionary">
+    <div class="search-box">
+      <input type="text" id="dict-search" placeholder="Search Swedish or English...">
+    </div>
+    <table class="dict-table">
+      <thead>
+        <tr>
+          <th class="col-rank" data-sort="rank"># <span class="sort-arrow">▼</span></th>
+          <th class="col-word" data-sort="sv">Swedish</th>
+          <th class="col-en" data-sort="en">English</th>
+          <th class="col-freq" data-sort="freq">Frequency</th>
+          <th class="col-bar"></th>
+        </tr>
+      </thead>
+      <tbody id="dict-body"></tbody>
+    </table>
+    <div class="pagination">
+      <button id="prev-page">← Prev</button>
+      <span class="page-info" id="page-info"></span>
+      <button id="next-page">Next →</button>
+    </div>
+  </div>
+
+  <!-- ====== QUIZ TAB ====== -->
+  <div class="tab-content" id="tab-quiz">
+    <div class="quiz-area">
+      <div class="quiz-tier-select">
+        <button class="quiz-tier-btn active" data-tier="1">Tier 1</button>
+        <button class="quiz-tier-btn" data-tier="2">Tier 2</button>
+        <button class="quiz-tier-btn" data-tier="3">Tier 3</button>
+        <button class="quiz-tier-btn" data-tier="all">All</button>
+      </div>
+      <div class="quiz-score" id="quiz-score">Score: 0 / 0</div>
+      <div class="quiz-card">
+        <div class="quiz-prompt">What does this word mean?</div>
+        <div class="quiz-word" id="quiz-word">—</div>
+        <div class="quiz-meta" id="quiz-meta"></div>
+      </div>
+      <div class="quiz-options" id="quiz-options"></div>
+      <button class="quiz-next" id="quiz-next">Next Word →</button>
+    </div>
+  </div>
+
+  <!-- ====== STATS TAB ====== -->
+  <div class="tab-content" id="tab-stats">
+    <div class="chart-section">
+      <h3>Top 20 Most Frequent Swedish Words</h3>
+      <div class="bar-chart" id="chart-top20"></div>
+    </div>
+    <div class="chart-section">
+      <h3>Coverage by Tier</h3>
+      <div class="bar-chart" id="chart-tiers"></div>
+    </div>
+    <div class="chart-section">
+      <h3>Word Categories (Tier 1)</h3>
+      <div class="bar-chart" id="chart-cats"></div>
+    </div>
+  </div>
+
+  </div>
+</div>
+
+<footer>
+  Built from 2025 Swedish books &middot; 133,330,791 words analyzed &middot; <a href="privacy.html" style="color:var(--muted)">Privacy & Sources</a>
+</footer>
+
+<script>
+// ============================================================
+// DATA — Injected by build.py
+// ============================================================
+const WORDS = [{"sv":"i","en":"in","freq":3393228},{"sv":"och","en":"and","freq":2636390},{"sv":"en","en":"a / one","freq":1265424},{"sv":"att","en":"to / that","freq":1264223},{"sv":"det","en":"it (neuter)","freq":1030942},{"sv":"som","en":"who / which / that","freq":1027384},{"sv":"de","en":"they","freq":1017318},{"sv":"med","en":"with","freq":910491},{"sv":"den","en":"it / that","freq":856947},{"sv":"han","en":"he","freq":834072},{"sv":"på","en":"on / at","freq":802936},{"sv":"till","en":"to","freq":790635},{"sv":"för","en":"for / because","freq":673080},{"sv":"är","en":"is / am / are","freq":598653},{"sv":"jag","en":"I","freq":592831},{"sv":"om","en":"if / about","freq":499608},{"sv":"sig","en":"oneself","freq":450673},{"sv":"ett","en":"a / one (neuter)","freq":442878},{"sv":"var","en":"was / where","freq":411626},{"sv":"vid","en":"at / by","freq":401320},{"sv":"hon","en":"she","freq":349860},{"sv":"av","en":"of / from","freq":347775},{"sv":"man","en":"man","freq":292771},{"sv":"du","en":"you (singular)","freq":281488},{"sv":"hade","en":"had","freq":257093},{"sv":"sin","en":"his/her (own)","freq":238785},{"sv":"hans","en":"his","freq":233119},{"sv":"inte","en":"not","freq":226348},{"sv":"se","en":"to see","freq":212768},{"sv":"från","en":"from","freq":208760},{"sv":"nu","en":"now","freq":208352},{"sv":"kan","en":"can","freq":194683},{"sv":"vi","en":"we","freq":191358},{"sv":"efter","en":"after","freq":181759},{"sv":"under","en":"under","freq":177560},{"sv":"skulle","en":"would","freq":172855},{"sv":"dem","en":"them","freq":170820},{"sv":"ut","en":"out","freq":156582},{"sv":"detta","en":"this (neuter)","freq":146651},{"sv":"alla","en":"all","freq":145585},{"sv":"när","en":"when","freq":142328},{"sv":"min","en":"my","freq":135593},{"sv":"denna","en":"this","freq":133613},{"sv":"barn","en":"child","freq":131021},{"sv":"utan","en":"without","freq":127427},{"sv":"vara","en":"to be","freq":124224},{"sv":"genom","en":"through","freq":120939},{"sv":"där","en":"there","freq":117492},{"sv":"andra","en":"other","freq":115039},{"sv":"upp","en":"up","freq":114696},{"sv":"år","en":"year","freq":113275},{"sv":"sina","en":"his/her (own, pl.)","freq":108990},{"sv":"här","en":"here","freq":107182},{"sv":"få","en":"few / to get","freq":102678},{"sv":"mot","en":"towards / against","freq":102066},{"sv":"ha","en":"to have","freq":100548},{"sv":"is","en":"ice","freq":99280},{"sv":"hennes","en":"her","freq":96319},{"sv":"sitt","en":"his/her (own, n.)","freq":96065},{"sv":"mycket","en":"much / very","freq":95101},{"sv":"sedan","en":"since / then","freq":86938},{"sv":"ja","en":"yes","freq":83856},{"sv":"hos","en":"at (someone's)","freq":81227},{"sv":"ni","en":"you (plural)","freq":75835},{"sv":"mer","en":"more","freq":72286},{"sv":"måste","en":"must","freq":64648},{"sv":"också","en":"also","freq":60627},{"sv":"hur","en":"how","freq":59921},{"sv":"aldrig","en":"never","freq":57576},{"sv":"några","en":"some","freq":57174},{"sv":"din","en":"your","freq":56269},{"sv":"gå","en":"to walk / go","freq":55270},{"sv":"över","en":"over","freq":53715},{"sv":"vad","en":"what","freq":53253},{"sv":"mitt","en":"my (neuter)","freq":52375},{"sv":"två","en":"two","freq":49171},{"sv":"ville","en":"wanted","freq":49015},{"sv":"komma","en":"to come","freq":49004},{"sv":"bara","en":"only / just","freq":47454},{"sv":"redan","en":"already","freq":47247},{"sv":"många","en":"many","freq":45948},{"sv":"dag","en":"day","freq":45524},{"sv":"stor","en":"big","freq":43876},{"sv":"nog","en":"enough / probably","freq":42526},{"sv":"ska","en":"shall / will","freq":42238},{"sv":"tre","en":"three","freq":42067},{"sv":"mellan","en":"between","freq":41078},{"sv":"ge","en":"to give","freq":40628},{"sv":"hand","en":"hand","freq":40353},{"sv":"bli","en":"to become","freq":40342},{"sv":"alltid","en":"always","freq":38984},{"sv":"ben","en":"bone / leg","freq":36020},{"sv":"namn","en":"name","freq":34442},{"sv":"rätt","en":"right / correct","freq":33885},{"sv":"finns","en":"exists / there is","freq":33501},{"sv":"god","en":"good","freq":32018},{"sv":"säga","en":"to say","freq":31781},{"sv":"nej","en":"no","freq":29390},{"sv":"far","en":"father","freq":28582},{"sv":"liten","en":"small","freq":27706},{"sv":"långt","en":"far (distance)","freq":26790},{"sv":"ny","en":"new","freq":25583},{"sv":"blev","en":"became","freq":25141},{"sv":"ner","en":"down","freq":23278},{"sv":"före","en":"before","freq":21720},{"sv":"gammal","en":"old","freq":20633},{"sv":"mest","en":"most","freq":20239},{"sv":"höra","en":"to hear","freq":19786},{"sv":"väg","en":"road / path","freq":19291},{"sv":"mor","en":"mother","freq":19038},{"sv":"vatten","en":"water","freq":18387},{"sv":"hålla","en":"to hold","freq":18061},{"sv":"veta","en":"to know","freq":17575},{"sv":"kort","en":"short","freq":17322},{"sv":"nära","en":"near","freq":17227},{"sv":"berg","en":"mountain","freq":16963},{"sv":"stå","en":"to stand","freq":16358},{"sv":"fyra","en":"four","freq":16258},{"sv":"lång","en":"long","freq":14986},{"sv":"full","en":"full","freq":14342},{"sv":"fem","en":"five","freq":14283},{"sv":"sten","en":"stone","freq":14167},{"sv":"hustru","en":"wife","freq":13703},{"sv":"slå","en":"to hit","freq":13495},{"sv":"tänka","en":"to think","freq":13020},{"sv":"natt","en":"night","freq":12973},{"sv":"fot","en":"foot","freq":12230},{"sv":"sy","en":"to sew","freq":10770},{"sv":"hår","en":"hair","freq":10683},{"sv":"eld","en":"fire","freq":10361},{"sv":"svart","en":"black","freq":10230},{"sv":"blod","en":"blood","freq":10047},{"sv":"dra","en":"to pull","freq":9964},{"sv":"ligga","en":"to lie down","freq":9929},{"sv":"dö","en":"to die","freq":9825},{"sv":"djur","en":"animal","freq":9469},{"sv":"falla","en":"to fall","freq":9251},{"sv":"döda","en":"to kill","freq":9014},{"sv":"hjärta","en":"heart","freq":8964},{"sv":"mun","en":"mouth","freq":8904},{"sv":"sitta","en":"to sit","freq":8877},{"sv":"människa","en":"person","freq":8739},{"sv":"jord","en":"earth","freq":8079},{"sv":"vem","en":"who","freq":7805},{"sv":"tunga","en":"tongue","freq":7523},{"sv":"kvinna","en":"woman","freq":7481},{"sv":"horn","en":"horn","freq":7053},{"sv":"äta","en":"to eat","freq":6829},{"sv":"vit","en":"white","freq":6424},{"sv":"kasta","en":"to throw","freq":6254},{"sv":"träd","en":"tree","freq":6012},{"sv":"öga","en":"eye","freq":5803},{"sv":"bröst","en":"breast","freq":5686},{"sv":"make","en":"husband","freq":5627},{"sv":"sol","en":"sun","freq":5559},{"sv":"vända","en":"to turn","freq":5357},{"sv":"blad","en":"leaf","freq":5348},{"sv":"rep","en":"rope","freq":5130},{"sv":"huvud","en":"head","freq":5113},{"sv":"kall","en":"cold","freq":4973},{"sv":"dricka","en":"to drink","freq":4902},{"sv":"röd","en":"red","freq":4789},{"sv":"lever","en":"liver","freq":4277},{"sv":"leva","en":"to live","freq":4251},{"sv":"skog","en":"forest","freq":4087},{"sv":"sjö","en":"lake","freq":4055},{"sv":"himmel","en":"sky","freq":3874},{"sv":"sjunga","en":"to sing","freq":3843},{"sv":"hals","en":"neck","freq":3715},{"sv":"knä","en":"knee","freq":3665},{"sv":"tung","en":"heavy","freq":3659},{"sv":"kött","en":"meat / flesh","freq":3605},{"sv":"öra","en":"ear","freq":3597},{"sv":"dela","en":"to split","freq":3499},{"sv":"räkna","en":"to count","freq":3485},{"sv":"hund","en":"dog","freq":3474},{"sv":"bred","en":"wide","freq":3426},{"sv":"höger","en":"right (dir.)","freq":3350},{"sv":"vind","en":"wind","freq":3346},{"sv":"varm","en":"warm","freq":3322},{"sv":"sand","en":"sand","freq":3314},{"sv":"salt","en":"salt","freq":3231},{"sv":"rot","en":"root","freq":2917},{"sv":"frukt","en":"fruit","freq":2908},{"sv":"fett","en":"fat","freq":2799},{"sv":"regn","en":"rain","freq":2777},{"sv":"snö","en":"snow","freq":2731},{"sv":"moln","en":"cloud","freq":2696},{"sv":"rygg","en":"back (body)","freq":2611},{"sv":"fisk","en":"fish","freq":2588},{"sv":"smal","en":"narrow","freq":2489},{"sv":"gul","en":"yellow","freq":2457},{"sv":"grön","en":"green","freq":2414},{"sv":"vänster","en":"left","freq":2412},{"sv":"tjock","en":"thick","freq":2408},{"sv":"flod","en":"river","freq":2348},{"sv":"dålig","en":"bad","freq":2337},{"sv":"blomma","en":"flower","freq":2245},{"sv":"flyga","en":"to fly","freq":2219},{"sv":"frukta","en":"to fear","freq":2206},{"sv":"leka","en":"to play","freq":2153},{"sv":"rök","en":"smoke","freq":2034},{"sv":"hud","en":"skin","freq":1980},{"sv":"ägg","en":"egg","freq":1958},{"sv":"rak","en":"straight","freq":1909},{"sv":"rund","en":"round","freq":1861},{"sv":"torr","en":"dry","freq":1830},{"sv":"fågel","en":"bird","freq":1818},{"sv":"binda","en":"to tie","freq":1808},{"sv":"jaga","en":"to hunt","freq":1795},{"sv":"mage","en":"belly","freq":1764},{"sv":"trycka","en":"to push","freq":1667},{"sv":"orm","en":"snake","freq":1643},{"sv":"sova","en":"to sleep","freq":1624},{"sv":"skära","en":"to cut","freq":1618},{"sv":"gräs","en":"grass","freq":1595},{"sv":"simma","en":"to swim","freq":1588},{"sv":"dimma","en":"fog","freq":1558},{"sv":"näsa","en":"nose","freq":1553},{"sv":"tunn","en":"thin","freq":1521},{"sv":"sticka","en":"to stab","freq":1478},{"sv":"mask","en":"worm","freq":1458},{"sv":"hav","en":"sea","freq":1439},{"sv":"kämpa","en":"to fight","freq":1405},{"sv":"stoft","en":"dust","freq":1376},{"sv":"frö","en":"seed","freq":1358},{"sv":"aska","en":"ash","freq":1321},{"sv":"tand","en":"tooth","freq":1290},{"sv":"bränna","en":"to burn","freq":1223},{"sv":"torka","en":"to wipe / dry","freq":1181},{"sv":"stjärna","en":"star","freq":1176},{"sv":"bark","en":"bark (tree)","freq":1165},{"sv":"flyta","en":"to float","freq":1029},{"sv":"käpp","en":"stick","freq":938},{"sv":"våt","en":"wet","freq":914},{"sv":"lus","en":"louse","freq":876},{"sv":"bita","en":"to bite","freq":804},{"sv":"slät","en":"smooth","freq":801},{"sv":"måne","en":"moon","freq":726},{"sv":"svans","en":"tail","freq":632},{"sv":"frysa","en":"to freeze","freq":631},{"sv":"vinge","en":"wing","freq":594},{"sv":"tvätta","en":"to wash","freq":593},{"sv":"fjäder","en":"feather","freq":560},{"sv":"slö","en":"dull / lazy","freq":534},{"sv":"smutsig","en":"dirty","freq":520},{"sv":"vass","en":"sharp","freq":458},{"sv":"gräva","en":"to dig","freq":423},{"sv":"lukta","en":"to smell","freq":376},{"sv":"nagel","en":"fingernail","freq":355},{"sv":"flöda","en":"to flow","freq":350},{"sv":"klämma","en":"to squeeze","freq":257},{"sv":"svälla","en":"to swell","freq":232},{"sv":"gnida","en":"to rub","freq":204},{"sv":"rutten","en":"rotten","freq":203},{"sv":"inälvor","en":"guts","freq":101},{"sv":"klia","en":"to scratch","freq":100}];
+const TOTAL_WORDS = 133330791;
+const TIER_DATA = [{"label":"Tier 1 (1-50)","pct":19.2,"color":"var(--tier1)"},{"label":"Tier 2 (51-100)","pct":2.2,"color":"var(--tier2)"},{"label":"Tier 3 (101+)","pct":0.7,"color":"var(--tier3)"}];
+
+// Add rank, tier, category
+WORDS.forEach((w, i) => {
+  w.rank = i + 1;
+  w.tier = i < 50 ? 1 : i < 100 ? 2 : 3;
+  w.pct = (w.freq / TOTAL_WORDS * 100);
+  // Simple categorization
+  const en = w.en.toLowerCase();
+  if (en.startsWith('to ')) w.cat = 'verb';
+  else if (['I','he','she','we','they','you (singular)','you (plural)','it (neuter)','it / that','them','oneself','who','who / which / that','what','his','her','his/her (own)','his/her (own, pl.)','his/her (own, n.)','my','my (neuter)','your'].some(p => en === p.toLowerCase())) w.cat = 'pronoun';
+  else if (['and','in','a / one','to / that','on / at','with','to','for / because','of / from','if / about','a / one (neuter)','not','at / by','under','over','out','after','without','up','through','towards / against','between','before','near','at (someone\'s)','from'].some(p => en === p.toLowerCase())) w.cat = 'function';
+  else if (['big','small','long','short','wide','thick','thin','heavy','old','new','good','bad','full','warm','cold','red','green','yellow','white','black','round','sharp','dull / lazy','smooth','wet','dry','dirty','rotten','straight','narrow','far (distance)'].some(p => en === p.toLowerCase())) w.cat = 'adjective';
+  else if (['man','woman','person','child','wife','husband','mother','father','animal','fish','bird','dog','snake','worm','louse'].some(p => en === p.toLowerCase())) w.cat = 'noun-living';
+  else w.cat = 'noun';
+});
+
+const maxFreq = WORDS[0].freq;
+
+// ============================================================
+// LEARNED STATE (localStorage)
+// ============================================================
+let learned = new Set(JSON.parse(localStorage.getItem('sv-learned') || '[]'));
+
+function saveLearned() {
+  localStorage.setItem('sv-learned', JSON.stringify([...learned]));
+  updateProgress();
+}
+
+function toggleLearned(sv) {
+  if (learned.has(sv)) learned.delete(sv); else learned.add(sv);
+  saveLearned();
+  renderLearnTab();
+}
+
+function updateProgress() {
+  const n = learned.size;
+  const pct = (n / WORDS.length * 100).toFixed(1);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-count').textContent = n;
+  document.getElementById('progress-total').textContent = WORDS.length;
+  document.getElementById('progress-pct').textContent = pct + '%';
+  document.getElementById('learned-stat').textContent = n;
+}
+
+// ============================================================
+// TABS
+// ============================================================
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    if (tab.dataset.tab === 'quiz') startQuiz();
+    if (tab.dataset.tab === 'stats') renderStats();
+  });
+});
+
+// ============================================================
+// LEARN TAB
+// ============================================================
+function renderLearnTab() {
+  ['tier1','tier2','tier3'].forEach((id, ti) => {
+    const grid = document.getElementById('grid-' + id);
+    const tierNum = ti + 1;
+    const tierWords = WORDS.filter(w => w.tier === tierNum);
+    grid.innerHTML = tierWords.map(w => `
+      <div class="word-card ${learned.has(w.sv) ? 'learned' : ''}" data-sv="${w.sv}">
+        <span class="word-rank">${w.rank}</span>
+        <div>
+          <div class="word-sv">${w.sv}</div>
+          <div class="word-freq">${w.freq.toLocaleString()}x</div>
+        </div>
+        <span class="word-en">${w.en}</span>
+        <div class="word-check" onclick="event.stopPropagation();toggleLearned('${w.sv}')">${learned.has(w.sv) ? '✓' : ''}</div>
+      </div>
+    `).join('');
+  });
+  updateProgress();
+}
+
+// ============================================================
+// DICTIONARY TAB
+// ============================================================
+let dictData = [...WORDS];
+let dictPage = 0;
+const PAGE_SIZE = 30;
+let sortCol = 'rank';
+let sortAsc = true;
+
+function renderDict() {
+  const query = document.getElementById('dict-search').value.toLowerCase().trim();
+  let filtered = WORDS.filter(w =>
+    w.sv.includes(query) || w.en.toLowerCase().includes(query)
+  );
+
+  // Sort
+  filtered.sort((a, b) => {
+    let va = a[sortCol], vb = b[sortCol];
+    if (sortCol === 'sv' || sortCol === 'en') {
+      return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    }
+    return sortAsc ? va - vb : vb - va;
+  });
+
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  if (dictPage >= totalPages) dictPage = Math.max(0, totalPages - 1);
+  const start = dictPage * PAGE_SIZE;
+  const page = filtered.slice(start, start + PAGE_SIZE);
+
+  document.getElementById('dict-body').innerHTML = page.map(w => `
+    <tr>
+      <td class="col-rank">${w.rank}</td>
+      <td class="col-word">${w.sv}</td>
+      <td class="col-en">${w.en}</td>
+      <td class="col-freq">${w.freq.toLocaleString()}</td>
+      <td class="col-bar"><div class="freq-bar" style="width:${(w.freq/maxFreq*100).toFixed(1)}%"></div></td>
+    </tr>
+  `).join('');
+
+  document.getElementById('page-info').textContent =
+    `Page ${dictPage+1} of ${totalPages} (${filtered.length} words)`;
+  document.getElementById('prev-page').disabled = dictPage === 0;
+  document.getElementById('next-page').disabled = dictPage >= totalPages - 1;
+}
+
+document.getElementById('dict-search').addEventListener('input', () => { dictPage = 0; renderDict(); });
+document.getElementById('prev-page').addEventListener('click', () => { dictPage--; renderDict(); });
+document.getElementById('next-page').addEventListener('click', () => { dictPage++; renderDict(); });
+
+document.querySelectorAll('.dict-table th[data-sort]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.sort;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = col === 'sv' || col === 'en'; }
+    dictPage = 0;
+    renderDict();
+  });
+});
+
+// ============================================================
+// QUIZ TAB
+// ============================================================
+let quizTier = 1;
+let quizCorrect = 0;
+let quizTotal = 0;
+let quizCurrent = null;
+
+document.querySelectorAll('.quiz-tier-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.quiz-tier-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    quizTier = btn.dataset.tier === 'all' ? 'all' : parseInt(btn.dataset.tier);
+    quizCorrect = 0;
+    quizTotal = 0;
+    startQuiz();
+  });
+});
+
+document.getElementById('quiz-next').addEventListener('click', startQuiz);
+
+function startQuiz() {
+  const pool = quizTier === 'all' ? WORDS : WORDS.filter(w => w.tier === quizTier);
+  const word = pool[Math.floor(Math.random() * pool.length)];
+  quizCurrent = word;
+
+  document.getElementById('quiz-word').textContent = word.sv;
+  document.getElementById('quiz-meta').textContent =
+    `Rank #${word.rank} · Tier ${word.tier} · ${word.freq.toLocaleString()} occurrences`;
+  document.getElementById('quiz-score').textContent =
+    `Score: ${quizCorrect} / ${quizTotal}${quizTotal ? ` (${(quizCorrect/quizTotal*100).toFixed(0)}%)` : ''}`;
+  document.getElementById('quiz-next').style.display = 'none';
+
+  // Pick 3 wrong answers
+  const others = WORDS.filter(w => w.sv !== word.sv);
+  const wrongs = [];
+  while (wrongs.length < 3) {
+    const r = others[Math.floor(Math.random() * others.length)];
+    if (!wrongs.find(w => w.sv === r.sv)) wrongs.push(r);
+  }
+
+  const options = [word, ...wrongs].sort(() => Math.random() - 0.5);
+  const container = document.getElementById('quiz-options');
+  container.innerHTML = options.map(o => `
+    <button class="quiz-opt" data-answer="${o.sv}">${o.en}</button>
+  `).join('');
+
+  container.querySelectorAll('.quiz-opt').forEach(btn => {
+    btn.addEventListener('click', () => handleQuizAnswer(btn));
+  });
+}
+
+function handleQuizAnswer(btn) {
+  const allBtns = document.querySelectorAll('.quiz-opt');
+  const isCorrect = btn.dataset.answer === quizCurrent.sv;
+  quizTotal++;
+  if (isCorrect) quizCorrect++;
+
+  allBtns.forEach(b => {
+    b.style.pointerEvents = 'none';
+    if (b.dataset.answer === quizCurrent.sv) b.classList.add('correct');
+    else if (b === btn && !isCorrect) b.classList.add('wrong');
+  });
+
+  document.getElementById('quiz-score').textContent =
+    `Score: ${quizCorrect} / ${quizTotal} (${(quizCorrect/quizTotal*100).toFixed(0)}%)`;
+  document.getElementById('quiz-next').style.display = 'inline-block';
+}
+
+// ============================================================
+// STATS TAB
+// ============================================================
+function renderStats() {
+  // Top 20 bar chart
+  const top20 = WORDS.slice(0, 20);
+  document.getElementById('chart-top20').innerHTML = top20.map(w => `
+    <div class="bar-row">
+      <div class="bar-label">${w.sv}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${(w.freq/maxFreq*100).toFixed(1)}%;background:var(--yellow)">
+          ${w.freq.toLocaleString()}
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // Tier coverage
+  document.getElementById('chart-tiers').innerHTML = TIER_DATA.map(t => `
+    <div class="bar-row">
+      <div class="bar-label">${t.label}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${(t.pct/25*100).toFixed(1)}%;background:${t.color}">
+          ${t.pct}% of text
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // Categories
+  const cats = {};
+  WORDS.filter(w => w.tier === 1).forEach(w => {
+    cats[w.cat] = (cats[w.cat] || 0) + 1;
+  });
+  const catEntries = Object.entries(cats).sort((a,b) => b[1]-a[1]);
+  const catMax = catEntries[0][1];
+  const catColors = {function:'var(--yellow)',pronoun:'var(--tier2)',verb:'var(--green)',noun:'var(--tier3)','noun-living':'#ff8a65',adjective:'#f48fb1'};
+  document.getElementById('chart-cats').innerHTML = catEntries.map(([cat, count]) => `
+    <div class="bar-row">
+      <div class="bar-label">${cat}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${(count/catMax*100)}%;background:${catColors[cat]||'var(--muted)'}">
+          ${count} words
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+renderLearnTab();
+renderDict();
+</script>
+</body>
+</html>

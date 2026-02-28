@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy & Sources — Frekvent</title>
+<style>
+  :root {
+    --blue: #006AA7;
+    --yellow: #FECC02;
+    --dark: #1a1a2e;
+    --darker: #12121f;
+    --card: #222240;
+    --text: #e8e8f0;
+    --muted: #9999bb;
+    --green: #66bb6a;
+    --link: #4fc3f7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--darker);
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .header {
+    background: linear-gradient(135deg, var(--blue) 0%, #004a80 100%);
+    padding: 2rem 2rem 1.5rem;
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--yellow);
+    margin-bottom: 0.2rem;
+  }
+  .header p {
+    color: rgba(255,255,255,0.7);
+    font-size: 0.95rem;
+  }
+  .header a { color: rgba(255,255,255,0.85); }
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 4rem;
+  }
+  h2 {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--yellow);
+    margin: 2rem 0 1rem;
+  }
+  h2:first-of-type { margin-top: 0; }
+  .card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .card p {
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+  .card p + p { margin-top: 0.6rem; }
+  strong.green { color: var(--green); }
+  strong.white { color: var(--text); }
+  code {
+    background: rgba(255,255,255,0.06);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+  a { color: var(--link); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  table {
+    width: 100%;
+    font-size: 0.88rem;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  th {
+    text-align: left;
+    padding: 0.5rem 0.8rem;
+    color: var(--muted);
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  td {
+    padding: 0.5rem 0.8rem;
+    color: var(--muted);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+    border-top: 1px solid rgba(255,255,255,0.04);
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Privacy & Sources</h1>
+  <p><a href="index.html">&larr; Back to Frekvent</a></p>
+</div>
+
+<div class="container">
+
+  <h2>Privacy Policy</h2>
+
+  <div class="card">
+    <h3>Zero Data Collection</h3>
+    <p>
+      This website collects <strong class="green">absolutely no data</strong>.
+      Nothing is sent to any server. There are no analytics, no cookies,
+      no tracking pixels, no third-party scripts. We collect zero data. None. Nada. Noll.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Your Data Lives in Your Browser</h3>
+    <p>
+      Your learning progress (which words you've marked as learned) is stored
+      entirely in your browser's <code>localStorage</code>. It never leaves
+      your device. If you clear your browser data, your progress will be reset.
+    </p>
+    <p>
+      No account is needed. No sign-up. No personal information is ever
+      requested or stored.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>This Is a Static Page</h3>
+    <p>
+      This entire application is a single HTML file with no backend, no server,
+      no database, and no network requests. You can disconnect from the internet
+      and it will continue to work perfectly. You can view the source code
+      yourself — what you see is everything there is.
+    </p>
+  </div>
+
+  <h2>Book Sources & Licensing</h2>
+
+  <div class="card">
+    <p>
+      The word frequencies were computed from <strong class="white">thousands of Swedish-language books</strong>.
+      All books used are in the <strong class="green">public domain</strong> and freely available for use.
+      Only aggregate word counts are included — no original text is reproduced.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Source</th>
+          <th>License</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="https://www.gutenberg.org/browse/languages/sv" target="_blank">Project Gutenberg</a></td>
+          <td>Public Domain</td>
+          <td>Classic Swedish literature in plain text. Free to use for any purpose.</td>
+        </tr>
+        <tr>
+          <td><a href="https://litteraturbanken.se" target="_blank">Litteraturbanken</a></td>
+          <td>Public Domain</td>
+          <td>The Swedish Literature Bank — digitized Swedish classics, hosted via Internet Archive.</td>
+        </tr>
+        <tr>
+          <td><a href="https://archive.org" target="_blank">Internet Archive</a></td>
+          <td>Public Domain</td>
+          <td>Additional Swedish-language public domain texts available for free download.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p style="margin-top:1rem;font-size:0.85rem">
+      All texts used were published before 1930 or are otherwise confirmed to be
+      in the public domain. No copyrighted material was used in generating the
+      word frequency data.
+    </p>
+  </div>
+
+  <h2>Contact</h2>
+
+  <div class="card">
+    <p>
+      Questions, concerns, or feedback? Reach out at
+      <a href="mailto:Placeholder@placeholder.com" style="font-weight:600">Placeholder@placeholder.com</a>
+    </p>
+  </div>
+
+</div>
+
+<footer>
+  <a href="index.html">&larr; Back to Frekvent</a>
+</footer>
+
+</body>
+</html>
